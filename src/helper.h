@@ -4,6 +4,6 @@
 #include <string>
 
 void closeProgram(const std::string& message, int exitCode);
-std::string readFile(const std::string& file);
+std::pair<std::string, bool> readFile(const std::string& file);
 
 #endif

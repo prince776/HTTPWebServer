@@ -53,3 +53,8 @@ void ServerSocket::log(const std::string &message)
 {
     std::cout << "[Server] " << message << "\n";
 }
+
+ServerSocket::~ServerSocket()
+{
+    close(socketID);
+}

@@ -4,11 +4,15 @@
 #include <cstring>
 
 #include "config.h"
+#include "helper.h"
 #include "serverSocket.h"
 #include "HTTPRequest.h"
 #include "HTTPResponse.h"
 
 using namespace std;
+
+void serve404(ServerSocket&server, int client);
+void serveFile(ServerSocket &server, HTTPRequest& req, int client);
 
 int main(int argc, char const *argv[])
 {
@@ -31,13 +35,36 @@ int main(int argc, char const *argv[])
             continue;
         }
 
-        server.log(request.method + " " + request.filepath + " " + request.query);
+        server.log("REQUEST: " + request.method + " " + request.filepath + " " + request.query);
+        serveFile(server, request, client);
 
-        HTTPResponse response(200, "OK", "text/html", "Test Page");
-        
-		server.sendResponse(client, response.response, response.responseSize);
 		server.closeConnection(client);
     }
-
+    
     return 0;
+}
+
+void serveFile(ServerSocket &server, HTTPRequest& req, int client)
+{
+    string fileType = req.filepath.substr(req.filepath.find_last_of('.') + 1);
+    if (fileType == "html")
+    {
+        server.log("Reading " + req.filepath);
+        auto [htmlContent, exists] = readFile(req.filepath);
+        server.log(htmlContent);
+
+        if (!exists) return serve404(server, client);
+
+        HTTPResponse res(200, "OK", "text/html", htmlContent);
+        server.sendResponse(client, res.response, res.responseSize);
+    }else
+    {
+        serve404(server, client);
+    }
+}
+
+void serve404(ServerSocket&server, int client)
+{
+    HTTPResponse res(404, "Not Found", "text/html", "Page Not Found");
+    server.sendResponse(client, res.response, res.responseSize);
 }
