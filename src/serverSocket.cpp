@@ -1,6 +1,8 @@
 #include "serverSocket.h"
 
+#include <iostream>
 #include <cstring>
+#include <string>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netinet/in.h>
@@ -45,4 +47,9 @@ void ServerSocket::sendResponse(int clientID, char* response, int responseSize)
 void ServerSocket::closeConnection(int clientID)
 {
     close(clientID);
+}
+
+void ServerSocket::log(const std::string &message)
+{
+    std::cout << "[Server] " << message << "\n";
 }

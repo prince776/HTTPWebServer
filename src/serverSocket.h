@@ -1,6 +1,7 @@
 #ifndef SERVER_SOCKET_H
 #define SERVER_SOCKET_H
 
+#include <string>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netinet/in.h>
@@ -21,6 +22,8 @@ public:
     int getRequest(int clientID, char* request);
     void sendResponse(int clientID, char* response, int responseSize = -1);
     void closeConnection(int clientID);
+
+    void log(const std::string& message);
 };
 
 #endif
