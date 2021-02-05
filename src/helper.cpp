@@ -13,17 +13,10 @@ void closeProgram(const std::string& message, int exitCode)
     exit(exitCode);
 }
 
-int readFile(const std::string& file, char* buffer)
+std::string readFile(const std::string& file)
 {
-	int ptr = -1;
-	char c;
 	std::ifstream in(file);
 	if (in.is_open())
-	{
-		ptr = 0;
-		std::string content = { std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() };
-		for (int i = 0; i < content.size(); i++)
-			buffer[ptr++] = content[i];
-	}
-	return ptr;
+		return { std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() };
+	return "";
 }

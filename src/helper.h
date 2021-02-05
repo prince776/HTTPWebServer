@@ -4,6 +4,6 @@
 #include <string>
 
 void closeProgram(const std::string& message, int exitCode);
-int readFile(const std::string& file, char* buffer);
+std::string readFile(const std::string& file);
 
 #endif

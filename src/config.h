@@ -3,7 +3,7 @@
 
 #include <string>
 
-const std::string ENTRYPOINT = "index.php";
+const std::string ENTRYPOINT = "index.html";
 const std::string HEADER = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
 // char RESPONSE404[] = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: 35\n\n<html><body>Not found</body></html>";
 // size_t RESPONSE404_LENGTH = strlen(RESPONSE404);
