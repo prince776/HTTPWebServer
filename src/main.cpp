@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <stdlib.h>  
 
 #include "config.h"
 #include "helper.h"
@@ -11,7 +12,10 @@
 
 using namespace std;
 
-void serve404(ServerSocket&server, int client);
+HTTPResponse get404Response();
+HTTPResponse processHtml(HTTPRequest &req);
+HTTPResponse processPhp(HTTPRequest& req);
+
 void serveFile(ServerSocket &server, HTTPRequest& req, int client);
 
 int main(int argc, char const *argv[])
@@ -26,7 +30,6 @@ int main(int argc, char const *argv[])
         char requestBuffer[REQUEST_SIZE] = {0};
         int requestSize = server.getRequest(client, requestBuffer);
 
-        // Process request        
         HTTPRequest request(requestBuffer, requestSize);
         if (!request.valid)
         {
@@ -46,25 +49,38 @@ int main(int argc, char const *argv[])
 
 void serveFile(ServerSocket &server, HTTPRequest& req, int client)
 {
+    HTTPResponse res = get404Response();
+
     string fileType = req.filepath.substr(req.filepath.find_last_of('.') + 1);
-    if (fileType == "html")
-    {
-        server.log("Reading " + req.filepath);
-        auto [htmlContent, exists] = readFile(req.filepath);
-        server.log(htmlContent);
+    bool exists = fileExists(req.filepath);
 
-        if (!exists) return serve404(server, client);
-
-        HTTPResponse res(200, "OK", "text/html", htmlContent);
-        server.sendResponse(client, res.response, res.responseSize);
-    }else
-    {
-        serve404(server, client);
-    }
+    if (!exists) ;
+    else if (fileType == "html") res = processHtml(req);
+    else if (fileType == "php") res = processPhp(req);
+    
+    server.sendResponse(client, res.response, res.responseSize);
 }
 
-void serve404(ServerSocket&server, int client)
+HTTPResponse get404Response()
 {
-    HTTPResponse res(404, "Not Found", "text/html", "Page Not Found");
-    server.sendResponse(client, res.response, res.responseSize);
+    return HTTPResponse(404, "Not Found", "text/html", "Page Not Found");
+}
+
+HTTPResponse processHtml(HTTPRequest &req)
+{
+    return HTTPResponse(200, "OK", "text/html", readFile(req.filepath).first);
+}
+
+HTTPResponse processPhp(HTTPRequest& req)
+{
+    setenv("GATEWAY_INTERFACT", "CGI/1.1", 1);
+    setenv("REDIRECT_STATUS", "200", 1);
+    setenv("REQUEST_METHOD", req.method.c_str(), 1);
+    setenv("SCRIPT_FILENAME", req.filepath.c_str(), 1);
+    setenv("QUERY_STRING", req.query.c_str(), 1);
+
+    string output = exec("php-cgi");
+    output = output.substr(output.find_first_of('\n'));
+
+    return HTTPResponse(200, "OK", "text/html", output);
 }

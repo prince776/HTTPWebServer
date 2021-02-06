@@ -4,6 +4,12 @@
 #include <istream>
 #include <sstream>
 
+#include <cstdio>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
+#include <sys/stat.h>
 
 #include "helper.h"
 
@@ -24,4 +30,23 @@ std::pair<std::string, bool> readFile(const std::string& file)
 		res = { std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() };
 	}
 	return std::make_pair(res, exists);
+}
+
+bool fileExists(const std::string& file)
+{
+	struct stat buffer;   
+	return (stat (file.c_str(), &buffer) == 0); 
+}
+
+std::string exec(const char* cmd) {
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        result += buffer.data();
+    }
+    return result;
 }
