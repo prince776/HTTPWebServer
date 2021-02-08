@@ -34,14 +34,14 @@ int ServerSocket::acceptConnection()
 
 int ServerSocket::getRequest(int clientID, char* request)
 {
-    return read(clientID, request, REQUEST_SIZE);
+    return recv(clientID, request, REQUEST_SIZE, 0);
 }
 
 void ServerSocket::sendResponse(int clientID, char* response, int responseSize)
 {
     if (responseSize < 0) responseSize = strlen(response);
     if (responseSize <= 0) return;
-    write(clientID, response, responseSize);
+    send(clientID, response, responseSize, 0);
 }
 
 void ServerSocket::closeConnection(int clientID)
@@ -51,7 +51,7 @@ void ServerSocket::closeConnection(int clientID)
 
 void ServerSocket::log(const std::string &message)
 {
-    std::cout << "[Server] " << message << "\n";
+    std::cout << "[Server] " << message << std::endl;
 }
 
 ServerSocket::~ServerSocket()

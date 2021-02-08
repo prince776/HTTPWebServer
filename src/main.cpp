@@ -31,6 +31,7 @@ int main(int argc, char const *argv[])
         int requestSize = server.getRequest(client, requestBuffer);
 
         HTTPRequest request(requestBuffer, requestSize);
+        
         if (!request.valid)
         {
             server.log("Invalid request");
@@ -40,7 +41,6 @@ int main(int argc, char const *argv[])
 
         server.log("REQUEST: " + request.method + " " + request.filepath + " " + request.query);
         serveFile(server, request, client);
-
 		server.closeConnection(client);
     }
     
@@ -73,13 +73,21 @@ HTTPResponse processHtml(HTTPRequest &req)
 
 HTTPResponse processPhp(HTTPRequest& req)
 {
-    setenv("GATEWAY_INTERFACT", "CGI/1.1", 1);
+    setenv("GATEWAY_INTERFACE", "CGI/1.1", 1);
     setenv("REDIRECT_STATUS", "200", 1);
+
     setenv("REQUEST_METHOD", req.method.c_str(), 1);
     setenv("SCRIPT_FILENAME", req.filepath.c_str(), 1);
     setenv("QUERY_STRING", req.query.c_str(), 1);
 
-    string output = exec("php-cgi");
+    if (req.headers.find("Content-Length") != req.headers.end())
+    {
+        setenv("CONTENT_TYPE", req.headers["Content-Type"].c_str(), 1);
+        setenv("CONTENT_LENGTH", req.headers["Content-Length"].c_str(), 1);
+        writeFile("input.txt", req.body);
+    }
+
+    string output = exec("php-cgi < input.txt");
     output = output.substr(output.find_first_of('\n'));
 
     return HTTPResponse(200, "OK", "text/html", output);

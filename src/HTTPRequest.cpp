@@ -3,13 +3,16 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <iostream>
+#include <cstring>
 
 #include "config.h"
 
 HTTPRequest::HTTPRequest(char* request, int requestSize)
 {
     std::stringstream firstLineSS;
-    for (int i = 0; i < requestSize; i++)
+    int i = 0;
+    for (i = 0; i < requestSize; i++)
     {
         if (request[i] == '\n' || request[i] == 0) break;
         firstLineSS << request[i];
@@ -37,5 +40,19 @@ HTTPRequest::HTTPRequest(char* request, int requestSize)
     filepath = filepath.substr(1);
     if (filepath == "") filepath = ENTRYPOINT;
     
+    std::stringstream ss;
+    for (; i < requestSize; i++) ss << request[i];
+    for (std::string word; ss >> word;)
+    {
+        if (word.back() != ':') continue;
+        std::string header = word.substr(0, word.size() - 1);
+        ss >> word;
+        headers[header] = word;
+    }
+    body = "";
+    std::string reqStr = ss.str();
+    if (headers.find("Content-Length") != headers.end())
+        body = reqStr.substr(reqStr.size() - stoi(headers["Content-Length"]));
+
     valid = true;
 }

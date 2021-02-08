@@ -29,6 +29,7 @@ std::pair<std::string, bool> readFile(const std::string& file)
 		exists = true;
 		res = { std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() };
 	}
+    in.close();
 	return std::make_pair(res, exists);
 }
 
@@ -36,6 +37,14 @@ bool fileExists(const std::string& file)
 {
 	struct stat buffer;   
 	return (stat (file.c_str(), &buffer) == 0); 
+}
+
+void writeFile(const std::string& file, const std::string& content)
+{
+    std::ofstream out(file);
+    out << content;
+    out.flush();
+    out.close();
 }
 
 std::string exec(const char* cmd) {
