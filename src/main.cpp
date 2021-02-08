@@ -19,6 +19,7 @@ HTTPResponse processJS(HTTPRequest &req);
 HTTPResponse processPhp(HTTPRequest& req);
 void serveFile(ServerSocket &server, HTTPRequest& req, int client);
 
+
 int main(int argc, char const *argv[])
 {
 	ServerSocket server(PORT);
@@ -86,11 +87,16 @@ HTTPResponse processJS(HTTPRequest &req)
 
 HTTPResponse processPhp(HTTPRequest& req)
 {
+    std::string fullPath = exec("pwd");
+    fullPath.back() = '/';
+    fullPath += req.filepath;
+
     setenv("GATEWAY_INTERFACE", "CGI/1.1", 1);
     setenv("REDIRECT_STATUS", "200", 1);
 
     setenv("REQUEST_METHOD", req.method.c_str(), 1);
-    setenv("SCRIPT_FILENAME", req.filepath.c_str(), 1);
+    setenv("SCRIPT_FILENAME", fullPath.c_str(), 1);
+    setenv("SCRIPT_NAME", req.filepath.c_str(), 1);
     setenv("QUERY_STRING", req.query.c_str(), 1);
 
     if (req.headers.find("Content-Length") != req.headers.end())
@@ -100,7 +106,11 @@ HTTPResponse processPhp(HTTPRequest& req)
         writeFile("input.txt", req.body);
     }
 
+    #ifdef PHP_USE_FPM
+    string output = exec("cgi-fcgi < input.txt -bind -connect /var/run/php/php7.2-fpm.sock");
+    #else
     string output = exec("php-cgi < input.txt");
+    #endif
     output = output.substr(output.find_first_of('\n'));
 
     return HTTPResponse(200, "OK", "text/html", output);
