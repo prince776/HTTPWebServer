@@ -14,8 +14,9 @@ using namespace std;
 
 HTTPResponse get404Response();
 HTTPResponse processHtml(HTTPRequest &req);
+HTTPResponse processCSS(HTTPRequest &req);
+HTTPResponse processJS(HTTPRequest &req);
 HTTPResponse processPhp(HTTPRequest& req);
-
 void serveFile(ServerSocket &server, HTTPRequest& req, int client);
 
 int main(int argc, char const *argv[])
@@ -57,6 +58,8 @@ void serveFile(ServerSocket &server, HTTPRequest& req, int client)
     if (!exists) ;
     else if (fileType == "html") res = processHtml(req);
     else if (fileType == "php") res = processPhp(req);
+    else if (fileType == "css") res = processCSS(req);
+    else if (fileType == "js") res = processJS(req);
     
     server.sendResponse(client, res.response, res.responseSize);
 }
@@ -69,6 +72,16 @@ HTTPResponse get404Response()
 HTTPResponse processHtml(HTTPRequest &req)
 {
     return HTTPResponse(200, "OK", "text/html", readFile(req.filepath).first);
+}
+
+HTTPResponse processCSS(HTTPRequest &req)
+{
+    return HTTPResponse(200, "OK", "text/css", readFile(req.filepath).first);
+}
+
+HTTPResponse processJS(HTTPRequest &req)
+{
+    return HTTPResponse(200, "OK", "text/javascript", readFile(req.filepath).first);
 }
 
 HTTPResponse processPhp(HTTPRequest& req)
