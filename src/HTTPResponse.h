@@ -12,6 +12,7 @@ public:
     int responseSize;
 
     HTTPResponse(int statusCode, const std::string& status, const std::string& contentType, const std::string& content);
+    HTTPResponse(int statusCode, const std::string& status, const std::string& headers, const std::string& content, bool useHeader);
 };
 
 #endif

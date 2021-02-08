@@ -110,8 +110,11 @@ HTTPResponse processPhp(HTTPRequest& req)
     string output = exec("cgi-fcgi < input.txt -bind -connect /var/run/php/php7.2-fpm.sock");
     #else
     string output = exec("php-cgi < input.txt");
-    #endif
-    output = output.substr(output.find_first_of('\n'));
+    #endif  
 
-    return HTTPResponse(200, "OK", "text/html", output);
+    auto pos = output.find("\n");
+    string headers = output.substr(0, pos);
+    output = output.substr(pos);
+
+    return HTTPResponse(200, "OK", headers, output, true);
 }
