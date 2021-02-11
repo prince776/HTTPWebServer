@@ -106,8 +106,8 @@ HTTPResponse processPhp(HTTPRequest& req)
         writeFile("input.txt", req.body);
     }
 
-    #ifdef PHP_USE_FPM
-    string output = exec("cgi-fcgi < input.txt -bind -connect /var/run/php/php7.2-fpm.sock");
+    #ifdef USE_PHP_FPM
+    string output = exec("cgi-fcgi < input.txt -bind -connect /var/run/php/php-fpm.sock");
     #else
     string output = exec("php-cgi < input.txt");
     #endif  
