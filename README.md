@@ -25,6 +25,12 @@ touch output.txt
 Now add whatever supported files you want along with index.php and run it.
 It'll run at: localhost:8080
 
+## Requirements
+Make sure to install php, php-fpm and fast cgi
+
+`php-cgi` and `cgi-fcgi` should be executables.
+
 ### Note
 When using PHP_FPM you may want to use `sudo` so that the server can comunicate with fpm without
 getting access denied.
+
