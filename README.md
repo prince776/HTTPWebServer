@@ -8,6 +8,8 @@ Create a folder build then use cmake to build it.
 use option `-DUSE_PHP_FPM=ON` to use fast cgi.
 
 All commands to compile and run
+clone and then `cd HTTPWebServer/`
+
 ```
 mkdir build
 cd build/
@@ -23,6 +25,7 @@ touch output.txt
 ```
 
 Now add whatever supported files you want along with index.php and run it.
+Test files are available in `public/` folder.
 It'll run at: localhost:8080
 
 ## Requirements
@@ -33,4 +36,3 @@ Make sure to install php, php-fpm and fast cgi
 ### Note
 When using PHP_FPM you may want to use `sudo` so that the server can comunicate with fpm without
 getting access denied.
-

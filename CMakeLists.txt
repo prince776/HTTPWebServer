@@ -13,11 +13,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
-set(SOURCES 	main.cpp
-		serverSocket.cpp
-		HTTPRequest.cpp
-		HTTPResponse.cpp
-		helper.cpp
+set(SOURCES 	src/main.cpp
+				src/serverSocket.cpp
+				src/HTTPRequest.cpp
+				src/HTTPResponse.cpp
+				src/helper.cpp
 )
 
 add_executable(HTTPWebServer ${SOURCES})
