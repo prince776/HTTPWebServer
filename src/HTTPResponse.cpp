@@ -9,7 +9,6 @@
 HTTPResponse::HTTPResponse(int statusCode, const std::string& status, const std::string& contentType, const std::string& content)
     : statusCode(statusCode), status(status), contentType(contentType)
 {
-    this->response = new char[RESPONSE_SIZE];
     responseSize = 0;
 
     std::stringstream ss;
@@ -19,7 +18,8 @@ HTTPResponse::HTTPResponse(int statusCode, const std::string& status, const std:
     ss << "Content-Type: " << contentType << "\n";
     ss << "Content-Length: " << std::to_string(content.size()) << "\n\n";
 
-    std::string header = ss.str();    
+    std::string header = ss.str();
+    this->response = new char[header.size() + content.size() + 4];
     for (int i = 0; i < header.size(); i++)
         response[responseSize++] = header[i];
     for (int i = 0; i < content.size(); i++)
@@ -29,7 +29,6 @@ HTTPResponse::HTTPResponse(int statusCode, const std::string& status, const std:
 HTTPResponse::HTTPResponse(int statusCode, const std::string& status, const std::string& headers, const std::string& content, bool useHeader)
     : statusCode(statusCode), status(status)
 {
-    this->response = new char[RESPONSE_SIZE];
     responseSize = 0;
 
     std::stringstream ss;
@@ -39,10 +38,10 @@ HTTPResponse::HTTPResponse(int statusCode, const std::string& status, const std:
     ss << headers << "\n";
     ss << "Content-Length: " << std::to_string(content.size()) << "\n\n";
 
-    std::string header = ss.str();    
+    std::string header = ss.str();
+    this->response = new char[header.size() + content.size() + 4];
     for (int i = 0; i < header.size(); i++)
         response[responseSize++] = header[i];
     for (int i = 0; i < content.size(); i++)
         response[responseSize++] = content[i];
 }
-

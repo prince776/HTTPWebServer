@@ -42,6 +42,7 @@ void ServerSocket::sendResponse(int clientID, char* response, int responseSize)
     if (responseSize < 0) responseSize = strlen(response);
     if (responseSize <= 0) return;
     send(clientID, response, responseSize, 0);
+    delete[] response;
 }
 
 void ServerSocket::closeConnection(int clientID)

@@ -63,6 +63,7 @@ void serveFile(ServerSocket &server, HTTPRequest& req, int client)
     else if (fileType == "js") res = processJS(req);
     
     server.sendResponse(client, res.response, res.responseSize);
+    server.log("Response of size: " + to_string(res.responseSize) + " bytes served");
 }
 
 HTTPResponse get404Response()
