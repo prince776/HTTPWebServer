@@ -1,5 +1,6 @@
 #!/bin/bash
-cd ../build
+cd ..
+cd build
 
 if [ -n "$1" ]; then 
 	cmake .. $1
