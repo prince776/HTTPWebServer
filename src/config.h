@@ -10,5 +10,6 @@ constexpr int MAXCONN = 10;
 constexpr int RESPONSE_SIZE = 4096;
 constexpr int REQUEST_SIZE = 4096;
 constexpr int CONTENT_SIZE = 4096;
+constexpr int THREADPOOL_SIZE = 8;
 
 #endif

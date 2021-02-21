@@ -1,0 +1,9 @@
+Running 2s test @ http://localhost:8080/big.php
+  8 threads and 500 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   226.83ms   46.76ms 283.31ms   78.79%
+    Req/Sec    27.11     14.95    60.00     65.71%
+  99 requests in 2.04s, 40.84MB read
+  Socket errors: connect 0, read 99, write 0, timeout 0
+Requests/sec:     48.49
+Transfer/sec:     20.00MB

@@ -1,0 +1,9 @@
+Running 2s test @ http://localhost:8080/small.php
+  8 threads and 500 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.02s   562.36ms   1.99s    57.56%
+    Req/Sec    17.63      8.52    60.00     84.78%
+  172 requests in 2.09s, 32.92KB read
+  Socket errors: connect 0, read 172, write 0, timeout 0
+Requests/sec:     82.15
+Transfer/sec:     15.72KB

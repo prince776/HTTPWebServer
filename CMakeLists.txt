@@ -21,3 +21,5 @@ set(SOURCES 	src/main.cpp
 )
 
 add_executable(HTTPWebServer ${SOURCES})
+
+target_link_libraries(HTTPWebServer pthread)

@@ -1,14 +1,15 @@
-// Server side C program to demonstrate HTTP Server programming
 #include <iostream>
 #include <string>
 #include <cstring>
 #include <stdlib.h>  
+#include <mutex>
 
 #include "config.h"
 #include "helper.h"
 #include "serverSocket.h"
 #include "HTTPRequest.h"
 #include "HTTPResponse.h"
+#include "threadPool.h"
 
 using namespace std;
 
@@ -17,36 +18,49 @@ HTTPResponse processHtml(HTTPRequest &req);
 HTTPResponse processCSS(HTTPRequest &req);
 HTTPResponse processJS(HTTPRequest &req);
 HTTPResponse processPhp(HTTPRequest& req);
+
+void handleConnection(int client, ServerSocket& server);
 void serveFile(ServerSocket &server, HTTPRequest& req, int client);
 
+mutex phpInputFileMutex;
 
 int main(int argc, char const *argv[])
 {
 	ServerSocket server(PORT);
     server.log(string("Listening on port: ") + to_string(PORT));
+
+    ThreadPool<int, THREADPOOL_SIZE> threadPool(handleConnection, server);
+
     while (true)
     {
 		int client = server.acceptConnection();
-		if (client < 0) continue;
+        if (client < 0) continue;
 
-        char requestBuffer[REQUEST_SIZE] = {0};
-        int requestSize = server.getRequest(client, requestBuffer);
-
-        HTTPRequest request(requestBuffer, requestSize);
-        
-        if (!request.valid)
-        {
-            server.log("Invalid request");
-            server.closeConnection(client);
-            continue;
-        }
-
-        server.log("REQUEST: " + request.method + " " + request.filepath + " " + request.query);
-        serveFile(server, request, client);
-		server.closeConnection(client);
+        threadPool.addTask(client);
     }
     
     return 0;
+}
+
+void handleConnection(int client, ServerSocket& server)
+{
+    if (client <= 0) return;
+
+    char requestBuffer[REQUEST_SIZE] = {0};
+    int requestSize = server.getRequest(client, requestBuffer);
+
+    HTTPRequest request(requestBuffer, requestSize);
+    
+    if (!request.valid)
+    {
+        server.log("Invalid request");
+        server.closeConnection(client);
+        return;
+    }
+
+    server.log("REQUEST: " + request.method + " " + request.filepath + " " + request.query);
+    serveFile(server, request, client);
+    server.closeConnection(client); 
 }
 
 void serveFile(ServerSocket &server, HTTPRequest& req, int client)
@@ -104,14 +118,20 @@ HTTPResponse processPhp(HTTPRequest& req)
     {
         setenv("CONTENT_TYPE", req.headers["Content-Type"].c_str(), 1);
         setenv("CONTENT_LENGTH", req.headers["Content-Length"].c_str(), 1);
-        writeFile("input.txt", req.body);
     }
 
-    #ifdef USE_PHP_FPM
-    string output = exec("cgi-fcgi < input.txt -bind -connect /var/run/php/php-fpm.sock");
-    #else
-    string output = exec("php-cgi < input.txt");
-    #endif  
+    string output;
+    {
+        lock_guard<mutex> guard(phpInputFileMutex);
+
+        writeFile("input.txt", req.body);
+
+        #ifdef USE_PHP_FPM
+        output = exec("cgi-fcgi < input.txt -bind -connect /var/run/php/php-fpm.sock");
+        #else
+        output = exec("php-cgi < input.txt");
+        #endif  
+    }
 
     auto pos = output.find("\n");
     string headers = output.substr(0, pos);
