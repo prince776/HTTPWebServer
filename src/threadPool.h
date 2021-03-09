@@ -4,6 +4,7 @@
 #include <queue>
 #include <thread>
 #include <iostream>
+#include <array>
 #include <mutex>
 #include <condition_variable>
 
@@ -23,7 +24,7 @@ private:
     std::condition_variable condition;
 public:
     template<typename Fn>
-    ThreadPool(Fn function, ServerSocket& server)
+    ThreadPool(Fn &function, ServerSocket& server)
     {
         auto work = [&]()
         {
